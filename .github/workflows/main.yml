@@ -10,7 +10,7 @@ on:
 jobs:
   compile:
     runs-on: ubuntu-latest
-    name: Running Java ${{ matrix.java }} compile # 安装编译 JDK
+    name: Running Java ${{ matrix.java }} compile
     steps:
       - uses: actions/checkout@v2
       - name: Set up JDK 1.8
@@ -34,7 +34,7 @@ jobs:
           java-version: 1.8
       - name: Generate the package
         run: mvn -B package --file pom.xml -Dmaven.test.skip=true
-      - name: 将包部署到远程服务器
+      - name: 将 JAR 包部署到服务器
         uses: garygrossgarten/github-action-scp@release
         with:
           local: target/github-actions-springboot-0.0.1-SNAPSHOT.jar
@@ -42,12 +42,12 @@ jobs:
           host: ${{ secrets.HOST }}
           username: ${{ secrets.SSH_USER }}
           password: ${{ secrets.SSH_PASSWORD }}
-      - name: 在服务器上执行 java -jar,请确保服务器安装了 JDK
+      - name: 在服务器上执行 java -jar，请确保服务器安装了 JDK
         if: always()
         uses: fifsky/ssh-action@master
         with:
           command: | # 命令中的 & 表示在后台运行进程
-            cd hacene/demo/actions/ && java -jar workflow-github-actions.jar &
+            cd blog.imzjw.cn/actions/ && java -jar github-actions-springboot.jar &
           host: ${{ secrets.HOST }}
           user: ${{ secrets.SSH_USER }}
           pass: ${{ secrets.SSH_PASSWORD }}
