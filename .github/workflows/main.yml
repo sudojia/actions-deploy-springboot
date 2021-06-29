@@ -1,0 +1,52 @@
+name: Java CI with Maven
+
+on:
+  push:
+    # 分支
+    branches: [ master ]
+  pull_request:
+    branches: [ master ]
+
+jobs:
+  compile:
+    runs-on: ubuntu-latest
+    name: Running Java ${{ matrix.java }} compile # 安装编译 JDK
+    steps:
+      - uses: actions/checkout@v2
+      - name: Set up JDK 1.8
+        uses: actions/setup-java@v1
+        with:
+          java-version: 1.8
+      - name: Compile code
+        run: mvn compile
+
+  deploy:
+    runs-on: ubuntu-latest
+    name: 将 JAR 包部署到远程服务器 # Deploy the JAR file to the remote server
+    needs: build
+    steps:
+      - uses: actions/checkout@v2
+      - name: Set up JDK 1.8
+        uses: actions/setup-java@v1
+        with:
+          java-version: 1.8
+      - name: Generate the package
+        run: mvn -B package --file pom.xml -Dmaven.test.skip=true
+      - name: Deploy the package to the remote server
+        uses: garygrossgarten/github-action-scp@release
+        with:
+          local: target/github-actions-springboot-1.0-SNAPSHOT.jar
+          remote: blog.imzjw.cn/actions/github-actions-springboot.jar
+          host: ${{ secrets.HOST }}
+          username: ${{ secrets.SSH_USER }}
+          password: ${{ secrets.SSH_PASSWORD }}
+      - name: 在服务器上执行 java -jar,请确保服务器安装了 JDK
+        if: always()
+        uses: fifsky/ssh-action@master
+        with:
+          command: | # 命令中的 & 表示在后台运行进程
+            cd hacene/demo/actions/ && java -jar workflow-github-actions.jar &
+          host: ${{ secrets.HOST }}
+          user: ${{ secrets.SSH_USER }}
+          pass: ${{ secrets.SSH_PASSWORD }}
+          args: "-tt"
