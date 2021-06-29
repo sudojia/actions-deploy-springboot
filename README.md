@@ -8,5 +8,9 @@
 
 感谢：
 
+- [setup-java](https://github.com/actions/setup-java)
+- [cache](https://github.com/actions/cache)
+- [checkout](https://github.com/actions/checkout)
+
 - [github-action-scp](https://github.com/garygrossgarten/github-action-scp)
 - [ssh-action](https://github.com/fifsky/ssh-action)
